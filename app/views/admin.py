@@ -103,8 +103,10 @@ def criaLivros():
 @admin_required
 def ListarLivros():
     livros = Livro.query.all()
-    livros_list = [{"id": livro.id, "titulo": livro.titulo, "autor": livro.autor,"editora":livro.editora} for livro in livros]
+    livros_list = [{"id": livro.id, "titulo": livro.titulo, "autor": livro.autor,"editora":livro.editora ,"ano_publicacao":livro.ano_publicacao,"codigo":livro.codigo,"quantidade":livro.quantidade,"categoria":livro.categoria} for livro in livros]
     return jsonify(livros_list), 200
+
+
 
 @admin_bp.route('/admin/livros/<int:id>', methods=['DELETE'])
 @admin_required
@@ -164,7 +166,7 @@ def criarComputadores():
 @admin_required
 def ListarComputadores():
     computadores = Computador.query.all()
-    computadores_list = [{"id": computador.id, "marca": computador.marca, "modelo": computador.modelo} for computador in computadores]
+    computadores_list = [{"id": computador.id, "marca": computador.marca, "modelo": computador.modelo,"propriedades":computador.propriedades,"numero_serie":computador.numero_serie,"especificacoes":computador.especificacoes,"estado":computador.estado,"disponivel":computador.disponivel} for computador in computadores]
     return jsonify(computadores_list), 200
 
 @admin_bp.route('/admin/computadores/<int:id>', methods=['DELETE'])
@@ -248,8 +250,36 @@ def aprovar_usuario(user_id):
 @admin_required
 def ver_usuarios():
     usuarios = Usuario.query.all()
-    usuarios_list = [{"numero de estudante": usuario.numero_estudante, "nome": usuario.nome, "email":usuario.email,} for usuario in usuarios]
+    usuarios_list = [{"numero_estudante": usuario.numero_estudante, "nome": usuario.nome, "email":usuario.email,"estado":usuario.aprovado} for usuario in usuarios]
     return jsonify(usuarios_list), 200
 
+@admin_bp.route('/admin/emprestimos/pendentes', methods=['GET'])
+@admin_required
+def listar_emprestimos_pendentes():
+    livros_pendentes = EmprestimoLivro.query.filter_by(status='pendente').all()
+    livros_data = []
+    for emp in livros_pendentes:
+        livros_data.append({
+            "id": emp.id,
+            "tipo": "livro",
+            "usuario": emp.usuario.nome,
+            "livro": emp.livro.titulo,
+            "data_pedido": emp.data_pedido.strftime('%Y-%m-%d %H:%M:%S'),
+            "status": emp.status
+        })
 
+    computadores_pendentes = EmprestimoComputador.query.filter_by(status='pendente').all()
+    computadores_data = []
+    for emp in computadores_pendentes:
+        computadores_data.append({
+            "id": emp.id,
+            "tipo": "computador",
+            "usuario": emp.usuario.nome,
+            "computador": f"{emp.computador.marca} - {emp.computador.modelo}",
+            "data_pedido": emp.data_pedido.strftime('%Y-%m-%d %H:%M:%S'),
+            "status": emp.status
+        })
 
+    emprestimos_pendentes = livros_data + computadores_data
+
+    return jsonify(emprestimos_pendentes), 200

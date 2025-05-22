@@ -21,7 +21,7 @@ server.register_blueprint(auth_bp)
 server.register_blueprint(admin_bp)
 server.register_blueprint(user_bp)
 
-CORS(server, origins=["http://localhost:3000"])
+CORS(server, origins=["https://frontend-ebiblio.vercel.app"])
 
 
 
