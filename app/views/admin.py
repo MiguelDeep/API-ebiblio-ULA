@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from .auth import admin_required
 from .auth import user_required
-from models.biblioteca import Admin,Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+from models.biblioteca import Admin, Entrada,Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
 from models.db import db
 from datetime import datetime
 
@@ -203,12 +203,64 @@ def ActualizarComputadores(id):
 @admin_bp.route('/admin/relatorios/diario', methods=['GET'])
 @admin_required
 def verRelatorio():
-    relatorio = RelatorioDiario.query.all()
-    relatorios_list = [{"id": relatorio.id, "data_relatorio": relatorio.data_relatorio, 
-                        "total_entradas": relatorio.total_entradas, 
-                        "total_emprestimos_livros": relatorio.total_emprestimos_livros, 
-                        "total_emprestimos_computadores": relatorio.total_emprestimos_computadores} for relatorio in relatorio]
-    return jsonify(relatorios_list), 200
+    total_usuarios = Usuario.query.count()
+    
+    total_emprestimos_livros = EmprestimoLivro.query.count()
+    
+    total_emprestimos_computadores = EmprestimoComputador.query.count()
+    
+    total_livros = Livro.query.count()
+
+    from sqlalchemy import func
+
+    top_usuarios_livros = (
+        db.session.query(Usuario.nome, func.count(EmprestimoLivro.id).label('total_emprestimos'))
+        .join(EmprestimoLivro)
+        .group_by(Usuario.id)
+        .order_by(func.count(EmprestimoLivro.id).desc())
+        .limit(3)
+        .all()
+    )
+
+    top_usuarios_computadores = (
+        db.session.query(Usuario.nome, func.count(EmprestimoComputador.id).label('total_emprestimos'))
+        .join(EmprestimoComputador)
+        .group_by(Usuario.id)
+        .order_by(func.count(EmprestimoComputador.id).desc())
+        .limit(3)
+        .all()
+    )
+
+    from collections import defaultdict
+    emprestimos_por_usuario = defaultdict(int)
+    for nome, total in top_usuarios_livros:
+        emprestimos_por_usuario[nome] += total
+    for nome, total in top_usuarios_computadores:
+        emprestimos_por_usuario[nome] += total
+
+    top_usuarios = sorted(emprestimos_por_usuario.items(), key=lambda x: x[1], reverse=True)[:3]
+
+    top_usuarios_list = [{"nome": nome, "total_emprestimos": total} for nome, total in top_usuarios]
+
+    relatorio = RelatorioDiario(
+        data_relatorio=datetime.now(),
+        total_entradas=total_usuarios,
+        total_emprestimos_livros=total_emprestimos_livros,
+        total_emprestimos_computadores=total_emprestimos_computadores,
+        total_livros=total_livros
+    )
+    db.session.add(relatorio)
+    db.session.commit()
+
+    return jsonify({
+        "data_relatorio": relatorio.data_relatorio.strftime("%Y-%m-%d %H:%M:%S"),
+        "total_usuarios": total_usuarios,
+        "total_emprestimos_livros": total_emprestimos_livros,
+        "total_emprestimos_computadores": total_emprestimos_computadores,
+        "total_livros": total_livros,
+        "top_usuarios_emprestimos": top_usuarios_list
+    }), 200
+
 
 
 @admin_bp.route('/admin/usuarios/pendentes', methods=['GET'])
@@ -250,7 +302,7 @@ def aprovar_usuario(user_id):
 @admin_required
 def ver_usuarios():
     usuarios = Usuario.query.all()
-    usuarios_list = [{"numero_estudante": usuario.numero_estudante, "nome": usuario.nome, "email":usuario.email,"estado":usuario.aprovado} for usuario in usuarios]
+    usuarios_list = [{"id":usuario.id,"numero_estudante": usuario.numero_estudante, "nome": usuario.nome, "email":usuario.email,"estado":usuario.aprovado} for usuario in usuarios]
     return jsonify(usuarios_list), 200
 
 @admin_bp.route('/admin/emprestimos/pendentes', methods=['GET'])
@@ -283,3 +335,22 @@ def listar_emprestimos_pendentes():
     emprestimos_pendentes = livros_data + computadores_data
 
     return jsonify(emprestimos_pendentes), 200
+
+
+@admin_bp.route('/admin/entradas', methods=['GET'])
+@admin_required
+def listar_entradas():
+    entradas = Entrada.query.all()
+
+    resultado = [{
+        "id": entrada.id,
+        "data_entrada": entrada.data_entrada.strftime("%Y-%m-%d %H:%M:%S"),
+        "nome": entrada.usuario.nome,
+        "email": entrada.usuario.email,
+        "numero_estudante": entrada.usuario.numero_estudante,
+        "turma": entrada.usuario.turma,
+        "curso": entrada.usuario.curso,
+        "tipo_usuario": entrada.usuario.tipo_usuario
+    } for entrada in entradas]
+
+    return jsonify(resultado), 200

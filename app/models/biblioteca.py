@@ -1,9 +1,5 @@
 from .db import db
-from sqlalchemy import Enum
-import enum
 from datetime import datetime
-
-
 
 class Admin(db.Model):
     __tablename__ = 'admins'
@@ -13,11 +9,6 @@ class Admin(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.now)
-    
-    
-class TipoUsuarioEnum(enum.Enum):
-    estudante = "estudante"
-    docente = "docente"
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -31,18 +22,18 @@ class Usuario(db.Model):
     criado_em = db.Column(db.DateTime, default=datetime.now)
     turma = db.Column(db.String(50), nullable=True)
     curso = db.Column(db.String(100), nullable=True)
-    tipo_usuario = db.Column(db.String(30), nullable=False)
-    
+    tipo_usuario = db.Column(db.String(30), nullable=False)  # Simples String agora
 
+    entradas = db.relationship('Entrada', backref='usuario', cascade="all, delete-orphan")
+    emprestimos_livros = db.relationship('EmprestimoLivro', backref='usuario', cascade="all, delete-orphan")
+    emprestimos_computadores = db.relationship('EmprestimoComputador', backref='usuario', cascade="all, delete-orphan")
 
 class Entrada(db.Model):
     __tablename__ = 'entradas'
 
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    tipo_usuario = db.Column(db.String(30), nullable=False)
     data_entrada = db.Column(db.DateTime, default=datetime.now)
-    
 
 class Livro(db.Model):
     __tablename__ = 'livros'
@@ -79,7 +70,6 @@ class EmprestimoLivro(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    tipo_pessoa = db.Column(db.String(20), nullable=False)
     livro_id = db.Column(db.Integer, db.ForeignKey('livros.id'), nullable=False)
     data_pedido = db.Column(db.DateTime, default=datetime.now)
     status = db.Column(db.String(20), default='pendente')
@@ -89,7 +79,6 @@ class EmprestimoComputador(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    tipo_pessoa = db.Column(db.String(20), nullable=False)
     computador_id = db.Column(db.Integer, db.ForeignKey('computadores.id'), nullable=False)
     data_pedido = db.Column(db.DateTime, default=datetime.now)
     status = db.Column(db.String(20), default='pendente')
@@ -98,8 +87,8 @@ class RelatorioDiario(db.Model):
     __tablename__ = 'relatorios_diarios'
 
     id = db.Column(db.Integer, primary_key=True)
-    data_relatorio = db.Column(db.Date, unique=True, nullable=False)
-    total_entradas = db.Column(db.Integer, default=0)
-    total_emprestimos_livros = db.Column(db.Integer, default=0)
-    total_emprestimos_computadores = db.Column(db.Integer, default=0)
-    criado_em = db.Column(db.DateTime, default=datetime.now)
+    data_relatorio = db.Column(db.DateTime)
+    total_entradas = db.Column(db.Integer)
+    total_emprestimos_livros = db.Column(db.Integer)
+    total_emprestimos_computadores = db.Column(db.Integer)
+    total_livros = db.Column(db.Integer)
