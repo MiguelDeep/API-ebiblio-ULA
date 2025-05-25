@@ -2,6 +2,9 @@ from flask import Blueprint, request, jsonify
 from models.biblioteca import Usuario, EmprestimoLivro, EmprestimoComputador
 from models.db import db
 from .auth import user_required
+
+
+
 user_bp = Blueprint('user', __name__)
 
 @user_bp.route("/usuario/home")
@@ -16,6 +19,9 @@ def criar_usuario():
     email = data.get('email')
     numero_estudante = data.get('numero_estudante')
     senha = data.get('senha')
+    turma = data.get('turma')
+    curso = data.get('curso')
+    tipo_usuario = data.get('tipo_usuario')
 
     if not nome or not email or not senha:
         return jsonify({"error": "Todos os campos são obrigatórios"}), 400
@@ -23,12 +29,18 @@ def criar_usuario():
     if Usuario.query.filter_by(email=email).first():
         return jsonify({"error": "Email já cadastrado"}), 409
 
+    if Usuario.query.filter_by(numero_estudante=numero_estudante).first():
+        return jsonify({"error": "Número de estudante já cadastrado"}), 409
+
     novo_usuario = Usuario(
+        numero_estudante=numero_estudante,
         nome=nome,
         email=email,
         senha=senha,
-        numero_estudante=numero_estudante,
-        aprovado=False
+        aprovado=False,
+        turma=turma,
+        curso=curso,
+        tipo_usuario=tipo_usuario
     )
     db.session.add(novo_usuario)
     db.session.commit()
@@ -40,7 +52,10 @@ def criar_usuario():
             "nome": novo_usuario.nome,
             "email": novo_usuario.email,
             "aprovado": novo_usuario.aprovado,
-            "numero_estudante":novo_usuario.numero_estudante
+            "numero_estudante": novo_usuario.numero_estudante,
+            "turma": novo_usuario.turma,
+            "curso": novo_usuario.curso,
+            "tipo_usuario": novo_usuario.tipo_usuario
         }
     }), 201
 
@@ -161,3 +176,16 @@ def ApagarComputadorEmprestar(id):
     db.session.delete(emprestimo)
     db.session.commit()
     return jsonify({"message": "Empréstimo de computador excluído com sucesso"}), 200
+
+
+
+@user_bp.route('/usuario/perfil')
+@user_required
+def perfil():
+    usuario = Usuario.query.get(request.user_id)
+    return jsonify({
+        "id": usuario.id,
+        "nome": usuario.nome,
+        "email": usuario.email,
+        "numero_estudante":usuario.numero_estudante
+    })

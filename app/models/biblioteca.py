@@ -1,23 +1,9 @@
 from .db import db
+from sqlalchemy import Enum
+import enum
 from datetime import datetime
 
 
-
-
-class Usuario(db.Model):
-    __tablename__ = 'usuarios'
-
-    id = db.Column(db.Integer, primary_key=True)
-    numero_estudante = db.Column(db.Integer, unique=True, nullable=False) 
-    nome = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
-    senha = db.Column(db.String(255), nullable=False)
-    aprovado = db.Column(db.Boolean, default=False)
-    criado_em = db.Column(db.DateTime, default=datetime.now)
-
-    entradas = db.relationship('Entrada', backref='usuario', cascade="all, delete-orphan")
-    emprestimos_livros = db.relationship('EmprestimoLivro', backref='usuario', cascade="all, delete-orphan")
-    emprestimos_computadores = db.relationship('EmprestimoComputador', backref='usuario', cascade="all, delete-orphan")
 
 class Admin(db.Model):
     __tablename__ = 'admins'
@@ -27,13 +13,34 @@ class Admin(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False)
     senha = db.Column(db.String(255), nullable=False)
     criado_em = db.Column(db.DateTime, default=datetime.now)
+    
+    
+class TipoUsuarioEnum(enum.Enum):
+    estudante = "estudante"
+    docente = "docente"
+
+class Usuario(db.Model):
+    __tablename__ = 'usuarios'
+
+    id = db.Column(db.Integer, primary_key=True)
+    numero_estudante = db.Column(db.Integer, unique=True, nullable=False)
+    nome = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    senha = db.Column(db.String(255), nullable=False)
+    aprovado = db.Column(db.Boolean, default=False)
+    criado_em = db.Column(db.DateTime, default=datetime.now)
+    turma = db.Column(db.String(50), nullable=True)
+    curso = db.Column(db.String(100), nullable=True)
+    tipo_usuario = db.Column(db.String(30), nullable=False)
+    
+
 
 class Entrada(db.Model):
     __tablename__ = 'entradas'
 
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    tipo_pessoa = db.Column(db.String(20), nullable=False)
+    tipo_usuario = db.Column(db.String(30), nullable=False)
     data_entrada = db.Column(db.DateTime, default=datetime.now)
     
 

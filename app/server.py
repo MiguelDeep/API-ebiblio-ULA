@@ -9,21 +9,19 @@ from flask_cors import CORS
 
 
 
-
-
-
 server = Flask(__name__)
 server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///biblioteca.db"
 server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+server.config['SECRET_KEY'] = 'yufjkhlj38o45940ujto34khn'
 db.init_app(server)
 
 server.register_blueprint(auth_bp)
 server.register_blueprint(admin_bp)
 server.register_blueprint(user_bp)
 
-CORS(server, origins=["https://frontend-ebiblio.vercel.app"])
+CORS(server)
 
-
+#, origins=["http://localhost:3000"]
 
 @server.route("/")
 def home():
@@ -34,6 +32,7 @@ def home():
 if __name__ == "__main__":
   with server.app_context():
     db.create_all()
+    
   server.run(debug=True)
 
 

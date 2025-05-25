@@ -35,7 +35,7 @@ def token_required(tipo_esperado):
                 data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
                 if data['tipo'] != tipo_esperado:
                     return jsonify({'mensagem': 'Acesso negado!'}), 403
-                request.user_id = data['id']
+                request.user_id = data['id']  
             except jwt.ExpiredSignatureError:
                 return jsonify({'mensagem': 'Token expirado!'}), 401
             except jwt.InvalidTokenError:
@@ -53,20 +53,26 @@ admin_required = token_required('admin')
 def login_usuario():
     data = request.get_json()
     usuario = Usuario.query.filter_by(email=data['email'], senha=data['senha']).first()
+
     if not usuario or not usuario.aprovado:
         return jsonify({'mensagem': 'Credenciais inválidas ou conta não aprovada'}), 401
+
     token = gerar_token(usuario.id, 'user')
     return jsonify({'token': token})
-@auth_bp.route('/sair', methods=['POST'])
-def logout():
-    return jsonify({'mensagem': 'Logout realizado com sucesso!'}), 200
+
 
 @auth_bp.route('/login/admin', methods=['POST'])
 def login_admin():
     data = request.get_json()
-    print(data)
     admin = Admin.query.filter_by(email=data['email'], senha=data['senha']).first()
+
     if not admin:
         return jsonify({'mensagem': 'Credenciais inválidas admin'}), 401
+
     token = gerar_token(admin.id, 'admin')
     return jsonify({'token': token})
+
+
+@auth_bp.route('/sair', methods=['POST'])
+def logout():
+    return jsonify({'mensagem': 'Logout realizado com sucesso!'}), 200
