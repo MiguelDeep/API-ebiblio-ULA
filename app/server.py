@@ -6,6 +6,11 @@ from models.biblioteca import Usuario, Admin, Entrada, Livro, Computador, Empres
 from flask_sqlalchemy import SQLAlchemy
 from views.auth import auth_bp
 from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 
 
 
@@ -19,6 +24,9 @@ server.register_blueprint(auth_bp)
 server.register_blueprint(admin_bp)
 server.register_blueprint(user_bp)
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+FLASK_ENV = os.getenv("FLASK_ENV")
+DATABASE_URL = os.getenv("DATABASE_URL")
 CORS(server)
 
 #, origins=["http://localhost:3000"]
