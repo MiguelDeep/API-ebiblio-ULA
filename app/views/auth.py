@@ -6,7 +6,6 @@ from models.biblioteca import Usuario, Admin
 from models.db import db
 
 SECRET_KEY = 'yufjkhlj38o45940ujto34khn'
-
 auth_bp = Blueprint('auth', __name__)
 
 def gerar_token(user_id, tipo):
@@ -15,8 +14,7 @@ def gerar_token(user_id, tipo):
         'tipo': tipo,
         'exp': datetime.now() + timedelta(hours=1)
     }
-    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')
-
+    return jwt.encode(payload, SECRET_KEY, algorithm='HS256')  
 
 def token_required(tipo_esperado):
     def decorator(f):
@@ -35,7 +33,7 @@ def token_required(tipo_esperado):
                 data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
                 if data['tipo'] != tipo_esperado:
                     return jsonify({'mensagem': 'Acesso negado!'}), 403
-                request.user_id = data['id']  
+                request.user_id = data['id']
             except jwt.ExpiredSignatureError:
                 return jsonify({'mensagem': 'Token expirado!'}), 401
             except jwt.InvalidTokenError:
@@ -48,7 +46,6 @@ def token_required(tipo_esperado):
 user_required = token_required('user')
 admin_required = token_required('admin')
 
-
 @auth_bp.route('/login', methods=['POST'])
 def login_usuario():
     data = request.get_json()
@@ -60,7 +57,6 @@ def login_usuario():
     token = gerar_token(usuario.id, 'user')
     return jsonify({'token': token})
 
-
 @auth_bp.route('/login/admin', methods=['POST'])
 def login_admin():
     data = request.get_json()
@@ -71,6 +67,7 @@ def login_admin():
 
     token = gerar_token(admin.id, 'admin')
     return jsonify({'token': token})
+
 
 
 @auth_bp.route('/sair', methods=['POST'])
