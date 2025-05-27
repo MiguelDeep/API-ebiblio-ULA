@@ -14,34 +14,34 @@ load_dotenv()
 
 
 
-server = Flask(__name__)
-server.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///biblioteca.db"
-server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-server.config['SECRET_KEY'] = 'yufjkhlj38o45940ujto34khn'
-db.init_app(server)
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///biblioteca.db"
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SECRET_KEY'] = 'yufjkhlj38o45940ujto34khn'
+db.init_app(app)
 
-server.register_blueprint(auth_bp)
-server.register_blueprint(admin_bp)
-server.register_blueprint(user_bp)
+app.register_blueprint(auth_bp)
+app.register_blueprint(admin_bp)
+app.register_blueprint(user_bp)
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 FLASK_ENV = os.getenv("FLASK_ENV")
 DATABASE_URL = os.getenv("DATABASE_URL")
-CORS(server)
+CORS(app)
 
 #, origins=["http://localhost:3000"]
 
-@server.route("/")
+@app.route("/")
 def home():
     return "Seja Bem-Vindo!"
 
 
 
 if __name__ == "__main__":
-  with server.app_context():
+  with app.app_context():
     db.create_all()
     
-  server.run(debug=True)
+  app.run(debug=True)
 
 
 #db.drop_all() --> apagar as tabelas
