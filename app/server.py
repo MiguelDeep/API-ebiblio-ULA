@@ -1,10 +1,21 @@
-from flask import Flask
+"""from flask import Flask
 from app.views.admin import admin_bp
 from app.views.user import user_bp
 from app.models.db import db
 from app.models.biblioteca import Usuario, Admin, Entrada, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
 from flask_sqlalchemy import SQLAlchemy
 from views.auth import auth_bp
+from flask_cors import CORS
+from dotenv import load_dotenv
+import os
+"""
+from flask import Flask
+from app.views.admin import admin_bp
+from app.views.user import user_bp
+from app.models.db import db
+from app.models.biblioteca import Usuario, Admin, Entrada, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+from flask_sqlalchemy import SQLAlchemy
+from app.views.auth import auth_bp   
 from flask_cors import CORS
 from dotenv import load_dotenv
 import os
