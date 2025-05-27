@@ -2,7 +2,9 @@ from flask import Blueprint, request, jsonify
 from datetime import datetime, timedelta
 import jwt
 from functools import wraps
-from models.biblioteca import Usuario, Admin
+#from models.biblioteca import Usuario, Admin
+from app.models.biblioteca import Usuario, Admin
+
 from models.db import db
 
 SECRET_KEY = 'yufjkhlj38o45940ujto34khn'
