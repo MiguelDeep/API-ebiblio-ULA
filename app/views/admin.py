@@ -1,7 +1,9 @@
 from flask import Blueprint, request, jsonify
 from .auth import admin_required
 from .auth import user_required
-from models.biblioteca import Admin, Entrada,Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+#from models.biblioteca import Admin, Entrada,Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+from app.models.biblioteca import Admin, Entrada, Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+
 from models.db import db
 from datetime import datetime
 
