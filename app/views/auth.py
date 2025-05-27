@@ -4,8 +4,9 @@ import jwt
 from functools import wraps
 #from models.biblioteca import Usuario, Admin
 from app.models.biblioteca import Usuario, Admin
+from app.models.db import db
 
-from models.db import db
+#from models.db import db
 
 SECRET_KEY = 'yufjkhlj38o45940ujto34khn'
 auth_bp = Blueprint('auth', __name__)
