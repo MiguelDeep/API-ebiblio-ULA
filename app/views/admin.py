@@ -4,7 +4,8 @@ from .auth import user_required
 #from models.biblioteca import Admin, Entrada,Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
 from app.models.biblioteca import Admin, Entrada, Usuario, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
 
-from models.db import db
+#from models.db import db
+from app.models.db import db
 from datetime import datetime
 
 admin_bp = Blueprint('admin', __name__)
