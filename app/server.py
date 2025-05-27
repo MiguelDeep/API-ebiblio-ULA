@@ -1,8 +1,8 @@
 from flask import Flask
-from views.admin import admin_bp
-from views.user import user_bp
-from models.db import db
-from models.biblioteca import Usuario, Admin, Entrada, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
+from app.views.admin import admin_bp
+from app.views.user import user_bp
+from app.models.db import db
+from app.models.biblioteca import Usuario, Admin, Entrada, Livro, Computador, EmprestimoLivro, EmprestimoComputador, RelatorioDiario
 from flask_sqlalchemy import SQLAlchemy
 from views.auth import auth_bp
 from flask_cors import CORS
