@@ -357,3 +357,74 @@ def listar_entradas():
     } for entrada in entradas]
 
     return jsonify(resultado), 200
+
+from sqlalchemy import extract
+
+@admin_bp.route('/admin/relatorios/mensal_anual', methods=['GET'])
+@admin_required
+def relatorio_mensal_anual():
+    mensal_livros = (
+        db.session.query(
+            extract('year', EmprestimoLivro.data_pedido).label('ano'),
+            extract('month', EmprestimoLivro.data_pedido).label('mes'),
+            db.func.count(EmprestimoLivro.id).label('total_livros')
+        )
+        .group_by('ano', 'mes')
+        .order_by('ano', 'mes')
+        .all()
+    )
+
+    mensal_computadores = (
+        db.session.query(
+            extract('year', EmprestimoComputador.data_pedido).label('ano'),
+            extract('month', EmprestimoComputador.data_pedido).label('mes'),
+            db.func.count(EmprestimoComputador.id).label('total_computadores')
+        )
+        .group_by('ano', 'mes')
+        .order_by('ano', 'mes')
+        .all()
+    )
+
+    anual_livros = (
+        db.session.query(
+            extract('year', EmprestimoLivro.data_pedido).label('ano'),
+            db.func.count(EmprestimoLivro.id).label('total_livros')
+        )
+        .group_by('ano')
+        .order_by('ano')
+        .all()
+    )
+
+    anual_computadores = (
+        db.session.query(
+            extract('year', EmprestimoComputador.data_pedido).label('ano'),
+            db.func.count(EmprestimoComputador.id).label('total_computadores')
+        )
+        .group_by('ano')
+        .order_by('ano')
+        .all()
+    )
+
+    relatorio_mensal = []
+    for livro in mensal_livros:
+        comp = next((c for c in mensal_computadores if c.ano == livro.ano and c.mes == livro.mes), None)
+        relatorio_mensal.append({
+            "ano": int(livro.ano),
+            "mes": int(livro.mes),
+            "emprestimos_livros": livro.total_livros,
+            "emprestimos_computadores": comp.total_computadores if comp else 0
+        })
+
+    relatorio_anual = []
+    for livro in anual_livros:
+        comp = next((c for c in anual_computadores if c.ano == livro.ano), None)
+        relatorio_anual.append({
+            "ano": int(livro.ano),
+            "emprestimos_livros": livro.total_livros,
+            "emprestimos_computadores": comp.total_computadores if comp else 0
+        })
+
+    return jsonify({
+        "relatorio_mensal": relatorio_mensal,
+        "relatorio_anual": relatorio_anual
+    }), 200
