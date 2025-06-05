@@ -24,8 +24,8 @@ load_dotenv()
 
 
 
-
 app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///biblioteca.db"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'yufjkhlj38o45940ujto34khn'
