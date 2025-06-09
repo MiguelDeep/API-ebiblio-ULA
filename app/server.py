@@ -21,7 +21,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(user_bp)
 
-CORS(app, origins=["https://frontend-ebiblio.vercel.app/"])
+CORS(app)
 
 @app.route("/")
 def home():
