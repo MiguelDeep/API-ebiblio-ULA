@@ -21,7 +21,7 @@ app.register_blueprint(auth_bp)
 app.register_blueprint(admin_bp)
 app.register_blueprint(user_bp)
 
-CORS(app,origins="https://frontend-ebiblio.vercel.app/")
+CORS(app,origins="https://frontend-ebiblio.vercel.app")
 
 @app.route("/")
 def home():
@@ -30,4 +30,6 @@ def home():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    debug_mode = os.getenv("FLASK_ENV") != "production"
+    app.run(debug=debug_mode, host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+
