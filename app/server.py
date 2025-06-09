@@ -2,8 +2,10 @@ from flask import Flask, jsonify
 from app.views.admin import admin_bp
 from app.views.user import user_bp
 from app.models.db import db
+from app.models.biblioteca import Admin,Computador,EmprestimoComputador,EmprestimoLivro,Entrada,Livro,RelatorioDiario,Usuario,datetime
 from app.views.auth import auth_bp   
 from flask_cors import CORS
+
 from dotenv import load_dotenv
 import os
 import logging
